@@ -516,3 +516,28 @@ class HardSIDBuilder(SidBuilder):
             obj = name_or_obj_or_sidbuilder
         obj = ffi.gc(obj, lib.HardSIDBuilder_destroy)
         super().__init__(obj)
+
+
+class SidDatabase:
+
+    def __init__(self):
+        obj = lib.SidDatabase_new()
+        self.obj = ffi.gc(obj, lib.SidDatabase_destroy)
+
+    def open(self, filename):
+        return lib.SidDatabase_open(self.obj, bytes(filename))
+
+    def close(self):
+        lib.SidDatabase_close(self.obj)
+
+    def length(self, tune_or_md5, song_num=None):
+        if song_num is not None:
+            md5 = bytes(tune_or_md5)
+            return lib.SidDatabase_length_md5(self.obj, md5, song_num)
+        else:
+            tune = tune_or_md5
+            return lib.SidDatabase_length_tune(self.obj, tune.obj)
+
+    @property
+    def error(self):
+        return ffi.string(lib.SidDatabase_error(self.obj))

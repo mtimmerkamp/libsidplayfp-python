@@ -15,6 +15,7 @@ ffibuilder.set_source('libsidplayfp._libsidplayfp', r'''
 #include "sidplayfp/builders/residfp.h"
 #include "sidplayfp/builders/resid.h"
 #include "sidplayfp/builders/hardsid.h"
+#include "sidplayfp/SidDatabase.h"
 
 extern "C" {
 
@@ -617,6 +618,43 @@ void HardSIDBuilder_destroy(HardSIDBuilder* self)
     delete self;
 }
 
+/* ********** SidDatabase ********** */
+SidDatabase* SidDatabase_new()
+{
+    return new SidDatabase();
+}
+
+void SidDatabase_destroy(SidDatabase* self)
+{
+    delete self;
+}
+
+bool SidDatabase_open(SidDatabase* self, const char *filename)
+{
+    return self->open(filename);
+}
+
+void SidDatabase_close(SidDatabase* self)
+{
+    self->close();
+}
+
+int_least32_t SidDatabase_length_tune(SidDatabase* self, SidTune* tune)
+{
+    return self->length(*tune);
+}
+
+int_least32_t SidDatabase_length_md5(SidDatabase* self,
+    const char *md5, unsigned int song)
+{
+    return self->length(md5, song);
+}
+
+const char* SidDatabase_error(SidDatabase* self)
+{
+    return self->error();
+}
+
 } // extern "C"
 
 ''', libraries=['sidplayfp'], source_extension='.cpp')
@@ -631,6 +669,7 @@ typedef struct sidbuilder sidbuilder;
 typedef struct ReSIDfpBuilder ReSIDfpBuilder;
 typedef struct ReSIDBuilder ReSIDBuilder;
 typedef struct HardSIDBuilder HardSIDBuilder;
+typedef struct SidDatabase SidDatabase;
 
 
 // sidplayfp (interface to Player)
@@ -824,6 +863,17 @@ void ReSIDBuilder_bias(ReSIDBuilder* self, double dac_bias);
 // HardSIDBuilder
 HardSIDBuilder* HardSIDBuilder_new(const char* name);
 void HardSIDBuilder_destroy(HardSIDBuilder* self);
+
+
+// SidDatabase
+SidDatabase* SidDatabase_new();
+void SidDatabase_destroy(SidDatabase* self);
+bool SidDatabase_open(SidDatabase* self, const char *filename);
+void SidDatabase_close(SidDatabase* self);
+int_least32_t SidDatabase_length_tune(SidDatabase* self, SidTune* tune);
+int_least32_t SidDatabase_length_md5(SidDatabase* self,
+    const char *md5, unsigned int song);
+const char* SidDatabase_error(SidDatabase* self);
 ''')
 
 
