@@ -24,7 +24,7 @@ setup(
     # long_description=long_description,
 
     # The project's main homepage.
-    url='-',
+    url='https://github.com/mtimmerkamp/libsidplayfp-python',
 
     # Author details
     author='Maximilian Timmerkamp',
