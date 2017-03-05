@@ -1,9 +1,9 @@
-libsidplayfp API Documentation
-##############################
+API Documentation
+#################
 
 .. py:currentmodule:: libsidplayfp
 
-This module mirrors mostly the C++ API of libsidplayfp 1.8. Some methods of the public interfaces ar enot implemented in the corresponding wrapper class. These are methods which are meant for internal use or are very rarely useful. Additionally no methods marked as deprecated are implemented.
+This module mirrors most of the C++ API of libsidplayfp 1.8. Some methods of the public interfaces are not implemented in the corresponding wrapper classes. These are methods which are meant for internal use, are deprecated or very rarely useful.
 
 SID Player and Configuration
 ============================
@@ -96,3 +96,10 @@ Songlength Database Utility
 
 .. autoclass:: SidDatabaseError
     :members:
+
+
+Access to internal C wrapper
+============================
+
+As libsidplayfp is written in C++, it was necessary to write a wrapper for all methods of all public interface's classes. cffi makes that effort rather simple. All wrapper methods are available from ``libsidplay.lib``, however these are not documented as that api is not guaranteed to be stable. It is only available from source in ``libsidplayfp/libsidplayfp_builder.py``.
+An interface to the ffi is provided by ``libsidplayfp.ffi``. This can be used to cast the internal cdata objects.

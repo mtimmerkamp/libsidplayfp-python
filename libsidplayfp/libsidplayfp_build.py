@@ -589,7 +589,6 @@ void sidbuilder_filter(sidbuilder* self, bool enable)
 /* ********** ReSIDfpBuilder ********** */
 ReSIDfpBuilder* ReSIDfpBuilder_new(const char * name)
 {
-    printf("Name: %s\n", name);
     return new ReSIDfpBuilder(name);
 }
 void ReSIDfpBuilder_destroy(ReSIDfpBuilder* self)

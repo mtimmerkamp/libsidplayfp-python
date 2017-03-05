@@ -282,7 +282,7 @@ class SidTune:
     @property
     def status_string(self):
         """Error/status message of last operation."""
-        return ffi.string(lib.SidTune_getStatusString(self.obj))
+        return ffi.string(lib.SidTune_statusString(self.obj))
 
     def create_MD5(self):
         """
@@ -345,7 +345,7 @@ class SidTuneInfo:
     def __init__(self, obj):
         self.obj = obj
 
-    _property = _property_builder('SidTuneInfo_songs')
+    _property = _property_builder('SidTuneInfo_')
 
     load_addr = _property('loadAddr', doc='Load Address.')
     init_addr = _property('initAddr', doc='Init Address.')
@@ -749,6 +749,8 @@ class ReSIDfpBuilder(SidBuilder):
 
     If no new builder is created but just casted, this instance does not own
     the underlying cdata object.
+
+    TODO: MAKE THREE SEPARATE KEYWORD PARAMETERS: name, wrap and cdata
 
     :param name_or_obj_or_sidbuilder: Name of new builder or
         existing builder object
