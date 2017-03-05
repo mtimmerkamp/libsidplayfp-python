@@ -1,11 +1,31 @@
 #!/usr/bin/env python3
+# This file is part of libsidplyfp(-python), a Python wrapper to
+# libsidplayfp, a SID player engine.
+
+# Copyright (C) 2017 Maximilian Timmerkamp
+# Many parts of the wrapper classes' documentation is directly from
+# libsidplayfp. So the respective authors of libsidplayfp hold the
+# copyright on these parts of the documentation.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 from enum import Enum
 
 from libsidplayfp._libsidplayfp import ffi, lib
 
 
-class SidPlayfpError(Exception):
+class SidError(Exception):
     """Base class for Exceptions from libsidplayfp."""
     pass
 
@@ -27,12 +47,12 @@ def _property_builder(prefix):
     return generate_property
 
 
-class SidPlayfpConfigError(SidPlayfpError):
+class SidPlayfpConfigError(SidError):
     """Error raised while setting :py:attr:`SidPlayfp.config`."""
     pass
 
 
-class SidPlayfpLoadError(SidPlayfpError):
+class SidPlayfpLoadError(SidError):
     """Error raised by :py:func:`SidPlayfp.load` while loading a tune."""
     pass
 
@@ -123,7 +143,7 @@ class SidPlayfp:
 
             Control debugging.
             Only has effect if library have been compiled
-            with the --enable-debug option.
+            with the ``--enable-debug`` option.
         """
         lib.sidplayfp_debug(self.obj, enable, file_)
 
@@ -370,10 +390,7 @@ class SidTuneInfo:
     @property
     def info_strings(self):
         """
-        Return tune informations: Song title, credits, ...
-        - 0 = Title
-        - 1 = Author
-        - 2 = Released
+        Return tune informations: Song title, author and release information.
 
         :returns: tune information
         :rtype: list
@@ -491,7 +508,8 @@ def _gen_SidConfig_property(name, **kwargs):
 class SidConfig:
     """
     An instance of this class is used to transport emulator settings
-    to and from the interface class.
+    to and from the interface class. Writing to any property is allowed
+    (and necessary to configure the engine).
     """
 
     def __init__(self, obj=None):
@@ -663,6 +681,13 @@ class SidBuilder:
 
     :param obj: sid builder to wrap
     :type obj: ``sidbuilder*``
+
+    libsidplayfp offers two additional methods
+    ``sidemu *lock(EventContext *env, SidConfig::sid_model_t model);`` and
+    ``void unlock(sidemu *device);`` which are not offered by this wrapper
+    class. These functions are intended for internal use to provide
+    the player with the required SID chips even though they are part of
+    ``sidbuilder``'s public interface.
     """
 
     def __init__(self, obj):
@@ -709,18 +734,38 @@ class SidBuilder:
 
 
 class ReSIDfpBuilder(SidBuilder):
-    """ReSIDfp Builder Class"""
+    """
+    ReSIDfp Builder Class, inherits from :py:class:`SidBuilder`.
+
+    If a string is passed, a new ReSIDfpBuilder will be created. If a
+    :py:class:`SidBuilder` is given, the underlying object will be casted to a
+    ``ReSIDfpBuilder`` without further checks. If anything else is given, it
+    will be treated as a cffi ``cdata`` object and casted to a
+    ``ReSIDfpBuilder``.
+
+    If a new builder is created this owns that builder object, so be sure that
+    the instance of this class is not garbage collected until you don't need
+    the builder any more.
+
+    If no new builder is created but just casted, this instance does not own
+    the underlying cdata object.
+
+    :param name_or_obj_or_sidbuilder: Name of new builder or
+        existing builder object
+    :type name_or_obj_or_sidbuilder: str or
+        :py:class:`SidBuilder` or cdata object
+    """
 
     def __init__(self, name_or_obj_or_sidbuilder):
         if isinstance(name_or_obj_or_sidbuilder, str):
             name = name_or_obj_or_sidbuilder
             b_name = name.encode('utf-8')
             obj = lib.ReSIDfpBuilder_new(b_name)
+            obj = ffi.gc(obj, lib.ReSIDfpBuilder_destroy)
         elif isinstance(name_or_obj_or_sidbuilder, SidBuilder):
             obj = ffi.cast('ReSIDfpBuilder*', name_or_obj_or_sidbuilder.obj)
         else:
-            obj = name_or_obj_or_sidbuilder
-        obj = ffi.gc(obj, lib.ReSIDfpBuilder_destroy)
+            obj = ffi.cast('ReSIDfpBuilder*', name_or_obj_or_sidbuilder)
         super().__init__(obj)
 
     def filter_6581_curve(self, filter_curve):
@@ -744,18 +789,22 @@ class ReSIDfpBuilder(SidBuilder):
 
 
 class ReSIDBuilder(SidBuilder):
-    """ReSID Builder Class"""
+    """
+    ReSID Builder Class
+
+    For an explaination on the parameter see :py:class:`ReSIDfpBuilder`.
+    """
 
     def __init__(self, name_or_obj_or_sidbuilder):
         if isinstance(name_or_obj_or_sidbuilder, str):
             name = name_or_obj_or_sidbuilder
             b_name = name.encode('utf-8')
             obj = lib.ReSIDBuilder_new(b_name)
+            obj = ffi.gc(obj, lib.ReSIDBuilder_destroy)
         elif isinstance(name_or_obj_or_sidbuilder, SidBuilder):
             obj = ffi.cast('ReSIDBuilder*', name_or_obj_or_sidbuilder.obj)
         else:
-            obj = name_or_obj_or_sidbuilder
-        obj = ffi.gc(obj, lib.ReSIDBuilder_destroy)
+            obj = ffi.cast('ReSIDBuilder*', name_or_obj_or_sidbuilder)
         super().__init__(obj)
 
     def bias(self, dac_bias):
@@ -767,22 +816,26 @@ class ReSIDBuilder(SidBuilder):
 
 
 class HardSIDBuilder(SidBuilder):
-    """HardSID Builder Class"""
+    """
+    HardSID Builder Class
+
+    For an explaination on the parameter see :py:class:`ReSIDfpBuilder`.
+    """
 
     def __init__(self, name_or_obj_or_sidbuilder):
         if isinstance(name_or_obj_or_sidbuilder, str):
             name = name_or_obj_or_sidbuilder
             b_name = name.encode('utf-8')
             obj = lib.HardSIDBuilder_new(b_name)
+            obj = ffi.gc(obj, lib.HardSIDBuilder_destroy)
         elif isinstance(name_or_obj_or_sidbuilder, SidBuilder):
             obj = ffi.cast('HardSIDBuilder*', name_or_obj_or_sidbuilder.obj)
         else:
-            obj = name_or_obj_or_sidbuilder
-        obj = ffi.gc(obj, lib.HardSIDBuilder_destroy)
+            obj = ffi.cast('HardSIDBuilder*', name_or_obj_or_sidbuilder)
         super().__init__(obj)
 
 
-class SidDatabaseError(SidPlayfpError):
+class SidDatabaseError(SidError):
     """Exception raised by :py:class:`SidDatabase`"""
     pass
 

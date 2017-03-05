@@ -3,13 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to libsidplayfp-python's documentation!
-===============================================
+Documentation of libsidplayfp-python
+====================================
+
+This module is a Python 3 wrapper around `libsidplayfp <https://sourceforge.net/projects/sidplay-residfp/>`_ using cffi.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
+   example
    libsidplayfp
 
 
