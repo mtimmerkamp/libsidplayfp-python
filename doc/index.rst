@@ -6,7 +6,9 @@
 Documentation of libsidplayfp-python
 ====================================
 
-This module is a Python 3 wrapper around `libsidplayfp <https://sourceforge.net/projects/sidplay-residfp/>`_ using cffi.
+``libsidplayfp`` is a Python 3 wrapper around `libsidplayfp <https://sourceforge.net/projects/sidplay-residfp/>`_ using `cffi <http://cffi.readthedocs.io/en/latest/>`_.
+
+It is licensed unter GPLv3 and available from `GitHub <https://github.com/mtimmerkamp/libsidplayfp-python>`_.
 
 .. toctree::
    :maxdepth: 3
