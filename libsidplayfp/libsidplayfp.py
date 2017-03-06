@@ -26,7 +26,6 @@ from libsidplayfp._libsidplayfp import ffi, lib
 
 
 class SidError(Exception):
-    """Base class for Exceptions from libsidplayfp."""
     pass
 
 
@@ -66,11 +65,6 @@ class SidPlayfp:
 
     @property
     def config(self):
-        """
-        Current engine configuration. (see :py:class:`SidConfig`)
-        Set to configure engine, an :py:class:`SidPlayfpConfigError`
-        is raised if engine could not be configured.
-        """
         return SidConfig(lib.sidplayfp_getConfig(self.obj))
 
     @config.setter
@@ -82,48 +76,22 @@ class SidPlayfp:
 
     @property
     def info(self):
-        """Get the current player informations. (see :py:class:`SidInfo`)"""
         return SidInfo(lib.sidplayfp_info(self.obj))
 
     @property
     def error(self):
-        """Current error message."""
         return ffi.string(lib.sidplayfp_error(self.obj))
 
     def fast_forward(self, percent):
-        """
-        Set fast-forward factor.
-
-        :param percent: fast-forward factor in percent.
-        :type percent: int
-        """
         return lib.sidplayfp_fastForward(self.obj, percent)
 
     def load(self, tune):
-        """
-        Load a tune.
-
-        :param tune: sidtune to load
-        :type tune: :py:class:`SidTune`
-        :raises SidPlayfpLoadError: if an error occurs
-        """
         success = lib.sidplayfp_load(self.obj, tune.obj)
 
         if not success:
             raise SidPlayfpLoadError(self.error)
 
     def play(self, buffer, length=None):
-        """
-        Run the emulation and produce samples to play if a buffer is given. If
-        length is not given, it will be calculated from ``len(buffer) // 2``.
-
-        :param buffer: buffer to write samples to
-        :type buffer: a mutable buffer
-        :param length: length of buffer (assuming 16-bit samples)
-        :type length: int
-        :returns: number of produced samples
-        :rtype: int
-        """
         buf = ffi.from_buffer(buffer)
         buf = ffi.cast('short*', buf)
         if length is None:
@@ -132,23 +100,12 @@ class SidPlayfp:
 
     @property
     def is_playing(self):
-        """Check if the engine is playing or stopped."""
         return lib.sidplayfp_isPlaying(self.obj)
 
     def stop(self):
-        """Stop the engine."""
         lib.sidplayfp_stop(self.obj)
 
     def debug(self, enable, file_=None):
-        """
-        Enable debugging.
-
-        From sidplayfp.h:
-
-            Control debugging.
-            Only has effect if library have been compiled
-            with the ``--enable-debug`` option.
-        """
         lib.sidplayfp_debug(self.obj, enable, file_)
 
     def mute(self, sid_num, voice, enable):
@@ -156,20 +113,9 @@ class SidPlayfp:
 
     @property
     def time(self):
-        """The current playing time in seconds."""
         return lib.sidplayfp_time(self.obj)
 
     def set_roms(self, kernal, basic=None, character=None):
-        """
-        Set ROM images.
-
-        :param kernal: Kernal ROM
-        :type kernal: buffer
-        :param kernal: Basic ROM, generally only needed for BASIC tunes.
-        :type kernal: buffer
-        :param kernal: character generator ROM
-        :type kernal: buffer
-        """
         def handle_buffer(buff):
             if buff is None:
                 buff = ffi.new('uint8_t[]', 0)
@@ -185,7 +131,6 @@ class SidPlayfp:
 
     @property
     def cia1_timerA(self):
-        """Get the CIA 1 Timer A programmed value."""
         return lib.sidplayfp_getCia1TimerA(self.obj)
 
 
@@ -247,11 +192,6 @@ class SidTune:
             raise SidTuneError(self.status_string)
 
     def load(self, filename):
-        """
-        Load a sidtune into an existing object from a file.
-
-        :raises SidTuneError: if loading a given tune fails
-        """
         sep_is_slash = os.sep == '/'
         lib.SidTune_load(self.obj, filename, sep_is_slash)
 
@@ -259,11 +199,6 @@ class SidTune:
             raise SidTuneError(self.status_string)
 
     def read(self, source_buffer):
-        """
-        Load a sidtune into an existing object from a buffer.
-
-        :raises SidTuneError: if reading a given tune fails
-        """
         lib.SidTune_read(
             self.obj, ffi.from_buffer(source_buffer), len(source_buffer))
 
@@ -271,26 +206,9 @@ class SidTune:
             raise SidTuneError(self.status_string)
 
     def select_song(self, song_num):
-        """
-        Select subtune. ``song_num=0`` selects the starting song.
-
-        :param song_num: sub-song to load
-        :type song_num: int
-        :returns: active song number, 0 if no tune is loaded
-        :rtype: int
-        """
         return lib.SidTune_selectSong(self.obj, song_num)
 
     def get_info(self, song_num=None):
-        """
-        Retrieve sub-song specific information. If ``song_num`` is None,
-        information about the current active song is returned.
-
-        :param song_num: song number get information
-        :type song_num: int or None
-        :returns: Information about song
-        :rtype: :py:class:`SidTuneInfo`
-        """
         if song_num is None:
             info = lib.SidTune_getInfo(self.obj)
         else:
@@ -301,24 +219,13 @@ class SidTune:
 
     @property
     def status(self):
-        """
-        Determine current state of object.
-        Upon error condition use :py:attr:`status_string` to get a descriptive
-        text string."""
         return bool(lib.SidTune_getStatus(self.obj))
 
     @property
     def status_string(self):
-        """Error/status message of last operation."""
         return ffi.string(lib.SidTune_statusString(self.obj))
 
     def create_MD5(self):
-        """
-        Calculates the MD5 hash of the tune.
-
-        :returns: md5 of this tune
-        :rtype: bytes
-        """
         md5_str = ffi.new('char[]', self.MD5_LENGTH + 1)
         md5 = lib.SidTune_createMD5(self.obj, md5_str)
         if md5 is None:
@@ -375,54 +282,28 @@ class SidTuneInfo:
 
     _property = _property_builder('SidTuneInfo_')
 
-    load_addr = _property('loadAddr', doc='Load Address.')
-    init_addr = _property('initAddr', doc='Init Address.')
-    play_addr = _property('playAddr', doc='Play Address.')
-    songs = _property('songs', doc='The number of songs.')
-    start_song = _property('startSong', doc='The default starting song.')
-    current_song = _property(
-        'currentSong', doc='The tune that has been initialized.')
+    load_addr = _property('loadAddr')
+    init_addr = _property('initAddr')
+    play_addr = _property('playAddr')
+    songs = _property('songs')
+    start_song = _property('startSong')
+    current_song = _property('currentSong')
 
     def sid_chip_base(self, i):
-        """
-        The SID chip base address(es) used by the sidtune.
-
-        :param i: chip number
-        :type i: int
-        :rtype: int
-        """
         return lib.SidTuneInfo_sidChipBase(self.obj, i)
 
-    sid_chips = _property(
-        'sidChips', doc='Get the number of SID chips required by the tune.')
-    song_speed = _property('songSpeed', doc='Intended speed.')
-    reloc_start_page = _property(
-        'relocStartPage', doc='First available page for relocation.')
-    reloc_pages = _property(
-        'relocPages', doc='Number of pages available for relocation.')
+    sid_chips = _property('sidChips')
+    song_speed = _property('songSpeed')
+    reloc_start_page = _property('relocStartPage')
+    reloc_pages = _property('relocPages')
 
     def sid_model(self, i):
-        """
-        The SID chip model(s) requested by the sidtune.
-
-        :param i: chip number
-        :type i: int
-        :rtype: :py:class:`SidModel`
-        """
         return SidModel(lib.SidTuneInfo_sidModel(self.obj, i))
 
-    compatibility = _property(
-        'compatibility', result_wrapper=SidCompatibility,
-        doc='Compatibility requirements. (see :py:class:`SidCompatibility`)')
+    compatibility = _property('compatibility', result_wrapper=SidCompatibility)
 
     @property
     def info_strings(self):
-        """
-        Return tune informations: Song title, author and release information.
-
-        :returns: tune information
-        :rtype: list
-        """
         info_strings = []
         for i in range(lib.SidTuneInfo_numberOfInfoStrings(self.obj)):
             info_string = ffi.string(lib.SidTuneInfo_infoString(self.obj, i))
@@ -431,12 +312,6 @@ class SidTuneInfo:
 
     @property
     def comment_strings(self):
-        """
-        Tune (MUS) comments.
-
-        :returns: tune information
-        :rtype: list
-        """
         comment_strings = []
         for i in range(lib.SidTuneInfo_numberOfCommentStrings(self.obj)):
             comment_string = ffi.string(
@@ -444,25 +319,18 @@ class SidTuneInfo:
             comment_strings.append(comment_string)
         return comment_strings
 
-    data_file_len = _property(
-        'dataFileLen', doc='Length of single-file sidtune file.')
-    c64data_len = _property(
-        'c64dataLen', doc='Length of raw C64 data without load address.')
-    clock_speed = _property(
-        'clockSpeed', result_wrapper=SidClock,
-        doc='The tune clock speed. (see :py:class:`SidClock`)')
+    data_file_len = _property('dataFileLen')
+    c64data_len = _property('c64dataLen')
+    clock_speed = _property('clockSpeed', result_wrapper=SidClock)
 
     @property
     def format_string(self):
-        """The name of the identified file format."""
         return ffi.string(lib.SidTuneInfo_formatString(self.obj))
 
-    fix_load = _property(
-        'fixLoad', doc='Whether load address might be duplicate.')
+    fix_load = _property('fixLoad')
 
     @property
     def path(self):
-        """Path to sidtune files."""
         s = ffi.string(lib.SidTuneInfo_path(self.obj))
         if s == ffi.NULL:
             return None
@@ -470,7 +338,6 @@ class SidTuneInfo:
 
     @property
     def data_filename(self):
-        """A first file: e.g. "foo.sid" or "foo.mus"."""
         s = ffi.string(lib.SidTuneInfo_dataFileName(self.obj))
         if s == ffi.NULL:
             return None
@@ -478,7 +345,6 @@ class SidTuneInfo:
 
     @property
     def info_filename(self):
-        """A second file: e.g. "foo.str" or None if no second file."""
         s = lib.SidTuneInfo_infoFileName(self.obj)
         if s == ffi.NULL:
             return None
@@ -487,6 +353,7 @@ class SidTuneInfo:
 
 class C64Model(Enum):
     """C64 model"""
+
     PAL = lib.PAL
     "PAL"
     NTSC = lib.NTSC
@@ -499,6 +366,7 @@ class C64Model(Enum):
 
 class DefaultSidModel(Enum):
     """Only used internally."""
+
     MOS6581 = lib.MOS6581
     MOD8580 = lib.MOS8580
 
@@ -548,24 +416,16 @@ class SidConfig:
 
     @property
     def default_c64_model(self):
-        """
-        Intended c64 model when unknown or forced. (see :py:class:`C64Model`)
-        """
         return C64Model(lib.SidConfig_get_defaultC64Model(self.obj))
 
     @default_c64_model.setter
     def default_c64_model(self, value):
         lib.SidConfig_set_defaultC64Model(self.obj, value.value)
 
-    force_c64_model = _gen_SidConfig_property('forceC64Model', doc='''
-        Force the model to :py:attr:`default_c64_model` ignoring tune\'s
-        clock setting.''')
+    force_c64_model = _gen_SidConfig_property('forceC64Model')
 
     @property
     def default_sid_model(self):
-        """
-        Intended sid model when unknown or forced. (see :py:class:`SidModel`)
-        """
         model = DefaultSidModel(lib.SidConfig_get_defaultSidModell(self.obj))
 
         if model == DefaultSidModel.MOS6581:
@@ -584,39 +444,23 @@ class SidConfig:
             raise ValueError('only MODEL6581 or MODEL8580 allowed')
         lib.SidConfig_set_defaultSidModel(self.obj, sid_model)
 
-    force_sid_model = _gen_SidConfig_property(
-        'forceSidModel',
-        doc='Force the sid model to :py:attr:`default_sid_model`.')
+    force_sid_model = _gen_SidConfig_property('forceSidModel')
 
     @property
     def playback(self):
-        """Playbak mode. (see :py:class:`Playback`)"""
         return Playback(lib.SidConfig_get_playback(self.obj))
 
     @playback.setter
     def playback(self, value):
         lib.SidConfig_set_playback(self.obj, value.value)
 
-    frequency = _gen_SidConfig_property('frequency', doc='Sampling frequency.')
+    frequency = _gen_SidConfig_property('frequency')
 
-    second_sid_address = _gen_SidConfig_property(
-        'secondSidAddress', doc='address of 2nd sid')
-    third_sid_address = _gen_SidConfig_property(
-        'thirdSidAddress', doc='address of 3rd sid')
+    second_sid_address = _gen_SidConfig_property('secondSidAddress')
+    third_sid_address = _gen_SidConfig_property('thirdSidAddress')
 
     @property
     def sid_emulation(self):
-        """
-        Selected sid emulation (:py:class:`SidBuilder`)
-
-        Reading this property always returns a :py:class:`SidBuilder`, however
-        as this is an abstract class the internal object is actually one of
-        :py:class:`ReSIDfpBuilder`, :py:class:`ReSIDBuilder` or
-        :py:class:`HardSIDBuilder`.
-
-        Writing to this property supports any of these classes as it is
-        casted internally.
-        """
         return SidBuilder(lib.SidConfig_get_sidEmulation(self.obj))
 
     @sid_emulation.setter
@@ -624,26 +468,21 @@ class SidConfig:
         builder = ffi.cast('sidbuilder*', value.obj)
         lib.SidConfig_set_sidEmulation(self.obj, builder)
 
-    left_volume = _gen_SidConfig_property(
-        'leftVolume', doc='Left channel volume.')
+    left_volume = _gen_SidConfig_property('leftVolume')
 
-    right_volume = _gen_SidConfig_property(
-        'rightVolume', doc='Right channel volume.')
+    right_volume = _gen_SidConfig_property('rightVolume')
 
-    power_on_delay = _gen_SidConfig_property(
-        'powerOnDelay', doc='Power on delay cycles.')
+    power_on_delay = _gen_SidConfig_property('powerOnDelay')
 
     @property
     def sampling_method(self):
-        """Sampling method. (see :py:class:`SamplingMethod`)"""
         return SamplingMethod(lib.SidConfig_get_samplingMethod(self.obj))
 
     @sampling_method.setter
     def sampling_method(self, value):
         lib.SidConfig_set_samplingMethod(self.obj, value.value)
 
-    fast_sampling = _gen_SidConfig_property(
-        'fastSampling', doc='Faster low-quality emulation (only reSID/fp)')
+    fast_sampling = _gen_SidConfig_property('fastSampling')
 
 
 class SidInfo:
@@ -654,40 +493,27 @@ class SidInfo:
 
     _property = _property_builder('SidInfo_')
 
-    name = _property('name', result_wrapper=ffi.string, doc='Library name')
-    version = _property('version', result_wrapper=ffi.string,
-                        doc='Library version')
+    name = _property('name', result_wrapper=ffi.string)
+    version = _property('version', result_wrapper=ffi.string)
 
     @property
     def credits(self):
-        """Array of library credits"""
         credit_strings = []
         for i in range(lib.SidInfo_numberOfCredits(self.obj)):
             credit_string = ffi.string(lib.SidInfo_credits(self.obj, i))
             credit_strings.append(credit_string)
         return credit_strings
 
-    maxsids = _property(
-        'maxsids', doc='Number of SIDs supported by this library')
-    channels = _property(
-        'channels', doc='Number of output channels (1-mono, 2-stereo)')
-    driver_addr = _property('driverAddr', doc='Address of the driver')
-    driver_length = _property(
-        'driverLength', doc='Size of the driver in bytes')
-    power_on_delay = _property('powerOnDelay', doc='Power on delay')
+    maxsids = _property('maxsids')
+    channels = _property('channels')
+    driver_addr = _property('driverAddr')
+    driver_length = _property('driverLength')
+    power_on_delay = _property('powerOnDelay')
 
-    speed_string = _property(
-        'speedString', result_wrapper=ffi.string,
-        doc='Describes the speed current song is running at')
-    kernal_desc = _property(
-        'kernalDesc', result_wrapper=ffi.string,
-        doc='Description of the loaded kernal ROM image')
-    basic_desc = _property(
-        'basicDesc', result_wrapper=ffi.string,
-        doc='Description of the loaded basic ROM image')
-    chargen_desc = _property(
-        'chargenDesc', result_wrapper=ffi.string,
-        doc='Description of the loaded character ROM image')
+    speed_string = _property('speedString', result_wrapper=ffi.string)
+    kernal_desc = _property('kernalDesc', result_wrapper=ffi.string)
+    basic_desc = _property('basicDesc', result_wrapper=ffi.string)
+    chargen_desc = _property('chargenDesc', result_wrapper=ffi.string)
 
 
 def _SidBuilder_property(name, result_wrapper=None, **kwargs):
@@ -704,11 +530,7 @@ def _SidBuilder_property(name, result_wrapper=None, **kwargs):
 
 class SidBuilder:
     """
-    Wrapper for sid builders. Base class of :py:class:`ReSIDfpBuilder`,
-    :py:class:`ReSIDBuilder` and :py:class:`HardSIDBuilder`.
-
-    :param obj: sid builder to wrap
-    :type obj: ``sidbuilder*``
+    Wrapper for sid builders.
 
     libsidplayfp offers two additional methods
     ``sidemu *lock(EventContext *env, SidConfig::sid_model_t model);`` and
@@ -723,40 +545,19 @@ class SidBuilder:
 
     _property = _SidBuilder_property
 
-    used_devices = _property('usedDevices', doc='''
-        The number of used devices, 0 if none are used.
-        ''')
-    avail_devices = _property('availDevices', doc='''
-        Number of available devices, 0 if  any number is available.''')
+    used_devices = _property('usedDevices')
+    avail_devices = _property('availDevices')
 
     def create(self, sids):
-        """
-        Create ``sids`` sid emulators.
-
-        :param sids: the number of required sid emulators
-        :type sids: int
-        :return: number of created sid emulators
-        :rtype: int
-        """
         obj = ffi.cast('sidbuilder*', self.obj)
         return lib.sidbuilder_create(obj, sids)
 
-    name = _property('name', result_wrapper=ffi.string,
-                     doc='The builder\'s name')
-    error = _property('error', result_wrapper=ffi.string,
-                      doc='current error message')
-    status = _property('getStatus', result_wrapper=bool, doc='''
-        current error status: True if no error occured, False otherwise''')
-    credits = _property('credits', result_wrapper=ffi.string, doc='''
-        credits of this sid builder.''')
+    name = _property('name', result_wrapper=ffi.string)
+    error = _property('error', result_wrapper=ffi.string)
+    status = _property('getStatus', result_wrapper=bool)
+    credits = _property('credits', result_wrapper=ffi.string)
 
     def filter(self, enable):
-        """
-        Toggle sid filter emulation.
-
-        :param enable: Enable of disable filter emulation
-        :type enable: bool
-        """
         obj = ffi.cast('sidbuilder*', self.obj)
         lib.sidbuilder_filter(obj, enable)
 
@@ -799,22 +600,9 @@ class ReSIDfpBuilder(SidBuilder):
         super().__init__(obj)
 
     def filter_6581_curve(self, filter_curve):
-        """
-        Set 6581 filter curve.
-
-        :param filter_curve: filterCurve from 0.0 (light) to
-            1.0 (dark) (default 0.5)
-        :type filter_curve: double
-        """
         lib.ReSIDfpBuilder_filter6581Curve(self.obj, filter_curve)
 
     def filter_8580_curve(self, filter_curve):
-        """
-        Set 8580 filter curve.
-
-        :param filter_curve: curve center frequency (default 12500)
-        :type filter_curve: double
-        """
         lib.ReSIDfpBuilder_filter8580Curve(self.obj, filter_curve)
 
 
@@ -837,10 +625,6 @@ class ReSIDBuilder(SidBuilder):
         super().__init__(obj)
 
     def bias(self, dac_bias):
-        """
-        The bias is given in millivolts, and a maximum reasonable
-        control range is approximately -500 to 500.
-        """
         lib.ReSIDBuilder_bias(self.obj, dac_bias)
 
 
@@ -876,35 +660,15 @@ class SidDatabase:
         self.obj = ffi.gc(obj, lib.SidDatabase_destroy)
 
     def open(self, filename):
-        """
-        Open the songlength DataBase.
-
-        :param filename: full path to songlength db
-        :raises SidDatabaseError: if songlength db could not be loaded
-        """
         opened = lib.SidDatabase_open(self.obj, bytes(filename))
 
         if not opened:
             raise self._raise_error()
 
     def close(self):
-        """Close the songlength database."""
         lib.SidDatabase_close(self.obj)
 
     def length(self, tune_or_md5, song_num=None):
-        """
-        Get the length of the selected subtune in seconds. If a
-        :py:class:`SidTune` is passed the length of the currently selected
-        subtune is returned.
-
-        :param tune_or_md5: SidTune or md5 of a SidTune
-        :type tune_or_md5: :py:class:`SidTune` or bytes
-        :param song_num: song number of subtune (required if an md5 is passed)
-        :type song_num: ``None`` or int
-        :return: tune length in seconds
-        :rtype: int
-        :raises SidDatabaseError: if length could not be determined
-        """
         if song_num is not None:
             md5 = bytes(tune_or_md5)
             length = lib.SidDatabase_length_md5(self.obj, md5, song_num)
@@ -919,7 +683,6 @@ class SidDatabase:
 
     @property
     def error(self):
-        """Get descriptive error message."""
         return ffi.string(lib.SidDatabase_error(self.obj))
 
     def _raise_error(self):
