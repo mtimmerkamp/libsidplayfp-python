@@ -19,7 +19,7 @@
 
 from libsidplayfp.libsidplayfp import (
     SidPlayfp, SidConfig, SidInfo,
-    SidError, SidPlayfpConfigError, SidPlayfpLoadError,
+    SidError, SidPlayfpConfigError, SidPlayfpLoadError, SidTuneError,
     C64Model, Playback, SamplingMethod, SidModel,
     SidTune, SidTuneInfo, SidClock, SidCompatibility,
     SidBuilder, ReSIDfpBuilder, ReSIDBuilder, HardSIDBuilder,

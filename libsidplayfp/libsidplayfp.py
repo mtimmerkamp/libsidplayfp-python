@@ -112,19 +112,23 @@ class SidPlayfp:
         if not success:
             raise SidPlayfpLoadError(self.error)
 
-    def play(self, buffer):
+    def play(self, buffer, length=None):
         """
-        Run the emulation and produce samples to play if a buffer is given.
+        Run the emulation and produce samples to play if a buffer is given. If
+        length is not given, it will be calculated from ``len(buffer) // 2``.
 
         :param buffer: buffer to write samples to
         :type buffer: a mutable buffer
+        :param length: length of buffer (assuming 16-bit samples)
+        :type length: int
         :returns: number of produced samples
         :rtype: int
         """
         buf = ffi.from_buffer(buffer)
         buf = ffi.cast('short*', buf)
-        buf_len = len(buffer) // 2  # 2 byte = 1 short
-        return lib.sidplayfp_play(self.obj, buf, buf_len)
+        if length is None:
+            length = len(buffer) // 2  # 2 byte = 1 short
+        return lib.sidplayfp_play(self.obj, buf, length)
 
     @property
     def is_playing(self):
@@ -185,6 +189,11 @@ class SidPlayfp:
         return lib.sidplayfp_getCia1TimerA(self.obj)
 
 
+class SidTuneError(SidError):
+    """Error raised when loading or reading a :py:class:`SidTune` fails."""
+    pass
+
+
 class SidTune:
     """
     Load a sidtune from a file.
@@ -198,6 +207,8 @@ class SidTune:
     :type filename: bytes
     :param source_buffer: buffer of complete sidtune
     :type source_buffer: bytes
+
+    :raises SidTuneError: if loading a given tune fails
 
     From SidTune.h:
 
@@ -232,15 +243,32 @@ class SidTune:
 
         self.obj = ffi.gc(obj, lib.SidTune_destroy)
 
+        if not self.status:
+            raise SidTuneError(self.status_string)
+
     def load(self, filename):
-        """Load a sidtune into an existing object from a file."""
+        """
+        Load a sidtune into an existing object from a file.
+
+        :raises SidTuneError: if loading a given tune fails
+        """
         sep_is_slash = os.sep == '/'
         lib.SidTune_load(self.obj, filename, sep_is_slash)
 
+        if not self.status:
+            raise SidTuneError(self.status_string)
+
     def read(self, source_buffer):
-        """Load a sidtune into an existing object from a buffer."""
+        """
+        Load a sidtune into an existing object from a buffer.
+
+        :raises SidTuneError: if reading a given tune fails
+        """
         lib.SidTune_read(
             self.obj, ffi.from_buffer(source_buffer), len(source_buffer))
+
+        if not self.status:
+            raise SidTuneError(self.status_string)
 
     def select_song(self, song_num):
         """
@@ -737,10 +765,10 @@ class ReSIDfpBuilder(SidBuilder):
     """
     ReSIDfp Builder Class, inherits from :py:class:`SidBuilder`.
 
-    If a string is passed, a new ReSIDfpBuilder will be created. If a
-    :py:class:`SidBuilder` is given, the underlying object will be casted to a
-    ``ReSIDfpBuilder`` without further checks. If anything else is given, it
-    will be treated as a cffi ``cdata`` object and casted to a
+    If ``name`` passed, a new ReSIDfpBuilder will be created. If ``cast``
+    is given, the underlying object will be casted to a
+    ``ReSIDfpBuilder`` without further checks. If ``cdata`` is given, it
+    will be treated as a cffi-``cdata`` object and casted to a
     ``ReSIDfpBuilder``.
 
     If a new builder is created this owns that builder object, so be sure that
@@ -750,24 +778,24 @@ class ReSIDfpBuilder(SidBuilder):
     If no new builder is created but just casted, this instance does not own
     the underlying cdata object.
 
-    TODO: MAKE THREE SEPARATE KEYWORD PARAMETERS: name, wrap and cdata
-
-    :param name_or_obj_or_sidbuilder: Name of new builder or
-        existing builder object
-    :type name_or_obj_or_sidbuilder: str or
-        :py:class:`SidBuilder` or cdata object
+    :param name: Name of new builder (creates new object)
+    :type name: str
+    :param cast: wrapper class to cast into ReSIDfpBuilder
+    :type cast: :py:class:`SidBuilder`
+    :param cdata: (for internal use) cdata object to cast into
+        ``ReSIDfpBuilder*``
+    :type cdata: cffi ``cdata`` (usually ``<cdata 'struct sidbuilder *'>``)
     """
 
-    def __init__(self, name_or_obj_or_sidbuilder):
-        if isinstance(name_or_obj_or_sidbuilder, str):
-            name = name_or_obj_or_sidbuilder
+    def __init__(self, name=None, cast=None, cdata=None):
+        if name is not None:
             b_name = name.encode('utf-8')
             obj = lib.ReSIDfpBuilder_new(b_name)
             obj = ffi.gc(obj, lib.ReSIDfpBuilder_destroy)
-        elif isinstance(name_or_obj_or_sidbuilder, SidBuilder):
-            obj = ffi.cast('ReSIDfpBuilder*', name_or_obj_or_sidbuilder.obj)
+        elif cast is not None:
+            obj = ffi.cast('ReSIDfpBuilder*', cast.obj)
         else:
-            obj = ffi.cast('ReSIDfpBuilder*', name_or_obj_or_sidbuilder)
+            obj = ffi.cast('ReSIDfpBuilder*', cdata)
         super().__init__(obj)
 
     def filter_6581_curve(self, filter_curve):
@@ -794,19 +822,18 @@ class ReSIDBuilder(SidBuilder):
     """
     ReSID Builder Class
 
-    For an explaination on the parameter see :py:class:`ReSIDfpBuilder`.
+    For an explanation on the parameter see :py:class:`ReSIDfpBuilder`.
     """
 
-    def __init__(self, name_or_obj_or_sidbuilder):
-        if isinstance(name_or_obj_or_sidbuilder, str):
-            name = name_or_obj_or_sidbuilder
+    def __init__(self, name=None, cast=None, cdata=None):
+        if name is not None:
             b_name = name.encode('utf-8')
             obj = lib.ReSIDBuilder_new(b_name)
             obj = ffi.gc(obj, lib.ReSIDBuilder_destroy)
-        elif isinstance(name_or_obj_or_sidbuilder, SidBuilder):
-            obj = ffi.cast('ReSIDBuilder*', name_or_obj_or_sidbuilder.obj)
+        elif cast is not None:
+            obj = ffi.cast('ReSIDBuilder*', cast.obj)
         else:
-            obj = ffi.cast('ReSIDBuilder*', name_or_obj_or_sidbuilder)
+            obj = ffi.cast('ReSIDBuilder*', cdata)
         super().__init__(obj)
 
     def bias(self, dac_bias):
@@ -821,19 +848,18 @@ class HardSIDBuilder(SidBuilder):
     """
     HardSID Builder Class
 
-    For an explaination on the parameter see :py:class:`ReSIDfpBuilder`.
+    For an explanation on the parameter see :py:class:`ReSIDfpBuilder`.
     """
 
-    def __init__(self, name_or_obj_or_sidbuilder):
-        if isinstance(name_or_obj_or_sidbuilder, str):
-            name = name_or_obj_or_sidbuilder
+    def __init__(self, name=None, cast=None, cdata=None):
+        if name is not None:
             b_name = name.encode('utf-8')
             obj = lib.HardSIDBuilder_new(b_name)
             obj = ffi.gc(obj, lib.HardSIDBuilder_destroy)
-        elif isinstance(name_or_obj_or_sidbuilder, SidBuilder):
-            obj = ffi.cast('HardSIDBuilder*', name_or_obj_or_sidbuilder.obj)
+        elif cast is not None:
+            obj = ffi.cast('HardSIDBuilder*', cast.obj)
         else:
-            obj = ffi.cast('HardSIDBuilder*', name_or_obj_or_sidbuilder)
+            obj = ffi.cast('HardSIDBuilder*', cdata)
         super().__init__(obj)
 
 
