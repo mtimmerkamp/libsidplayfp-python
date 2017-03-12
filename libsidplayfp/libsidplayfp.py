@@ -171,14 +171,12 @@ class SidTune:
     MD5_LENGTH = lib.MD5_LENGTH
 
     def __init__(self, filename=None, source_buffer=None):
-        filename_exts = ffi.cast('char**', 0)
-
         if source_buffer is not None:
             obj = lib.SidTune_new_from_buffer(
                 ffi.from_buffer(source_buffer), len(source_buffer))
         elif filename is None:
-            filename = ffi.cast('char*', 0)
-            obj = lib.SidTune_new_from_filename(filename, filename_exts, False)
+            raise ValueError(
+                'either filename or source_buffer must not be None')
         else:
             filename_exts = ffi.cast('char**', 0)
             sep_is_slash = os.sep == '/'
