@@ -63,6 +63,9 @@ class SidPlayfp:
         obj = lib.sidplayfp_new()
         self.obj = ffi.gc(obj, lib.sidplayfp_destroy)
 
+        # store current tune to prevent SIGSEGVs when calling stop()
+        self._current_tune = None
+
     @property
     def config(self):
         return SidConfig(lib.sidplayfp_getConfig(self.obj))
@@ -90,6 +93,8 @@ class SidPlayfp:
 
         if not success:
             raise SidPlayfpLoadError(self.error)
+
+        self._current_tune = tune
 
     def play(self, buffer, length=None):
         buf = ffi.from_buffer(buffer)
