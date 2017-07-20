@@ -66,13 +66,20 @@ class SidPlayfp:
         # store current tune to prevent SIGSEGVs when calling stop()
         self._current_tune = None
 
+        self._config = None
+
     @property
     def config(self):
-        return SidConfig(lib.sidplayfp_getConfig(self.obj))
+        if self._config is None:
+            self._config = SidConfig(lib.sidplayfp_getConfig(self.obj))
+        return self._config
 
     @config.setter
     def config(self, config):
-        success = lib.sidplayfp_setConfig(self.obj, config.obj)
+        self._config = config
+
+    def configure(self):
+        success = lib.sidplayfp_setConfig(self.obj, self.config.obj)
 
         if not success:
             raise SidPlayfpConfigError(self.error)

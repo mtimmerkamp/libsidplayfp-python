@@ -14,7 +14,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='libsidplayfp',
 
-    version='0.0.3a0',
+    version='0.0.4a0',
 
     description='interface to libsidplayfp',
     long_description=long_description,
@@ -42,6 +42,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     keywords='sidplayfp libsidplayfp c64 sidtune',

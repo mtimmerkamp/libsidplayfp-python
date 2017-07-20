@@ -23,11 +23,11 @@ By passing a name, a new emulation instance is created. We also need to create s
 
 Now ``player`` needs to be configured using ``emulation``. Several other options like stereo output and sampling frequency should also be configured::
 
-    >>> config = player.config  # get a SidConfig instance
+    >>> config = player.config  # get the currently loaded SidConfig instance
     >>> config.sid_emulation = emulation
     >>> config.playback = libsidplayfp.Playback.STEREO
     >>> config.frequency = 44100
-    >>> player.config = config  # configure the player/emulation
+    >>> player.configure()  # configure the player/emulation
 
 The last line configures the player. If something went wrong, an error will be raised (hopefully) explaining what failed. The error messages are passed from C++ implementation and wrapped into an Exception.
 

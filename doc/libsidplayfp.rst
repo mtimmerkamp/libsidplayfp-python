@@ -24,8 +24,10 @@ SID Player and Configuration
     .. py:attribute:: SidPlayfp.config
 
         Current engine configuration. (see :py:class:`SidConfig`)
-        Set to configure engine, an :py:class:`SidPlayfpConfigError`
-        is raised if engine could not be configured.
+
+    .. py:method:: SidPlayfp.configure()
+
+        Configure engine using :py:attr:`SidPlayfp.config`. An :py:class:`SidPlayfpConfigError` is raised if engine could not be configured.
 
 
     .. py:method:: SidPlayfp.debug(enable, file_=None)
