@@ -270,8 +270,9 @@ Sidtunes can be loaded from files using :py:class:`SidTune`. Using its method :p
 
     ``filename`` specifies a path to a sidtune to load. If ``source_buffer``
     is given a sidtune is created from that buffer using :py:func:`.read`.
-    If neither is given, an "empty" tune is created on which :py:func:`load`
-    or :py:func:`read` can be called.
+    If neither is given, an error is raised. This is in contrast too the
+    underlying C++ library libsidplayfp which allows to create a SidTune
+    instance in an invalid state.
 
     :param filename: path to sidtune
     :type filename: bytes

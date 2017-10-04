@@ -157,8 +157,9 @@ class SidTune:
 
     ``filename`` specifies a path to a sidtune to load. If ``source_buffer``
     is given a sidtune is created from that buffer using :py:func:`.read`.
-    If neither is given, an "empty" tune is created on which :py:func:`load`
-    or :py:func:`read` can be called.
+    If neither is given, an error is raised. This is in contrast too the
+    underlying C++ library libsidplayfp which allows to create a SidTune
+    instance in an invalid state.
 
     :param filename: path to sidtune
     :type filename: bytes
@@ -424,6 +425,9 @@ class SidConfig:
             obj = ffi.gc(obj, lib.SidConfig_destroy)
         self.obj = obj
 
+        # Hold a reference to builder to avoid freeing its memory.
+        self._builder = None
+
     @property
     def default_c64_model(self):
         return C64Model(lib.SidConfig_get_defaultC64Model(self.obj))
@@ -471,12 +475,16 @@ class SidConfig:
 
     @property
     def sid_emulation(self):
-        return SidBuilder(lib.SidConfig_get_sidEmulation(self.obj))
+        if self._builder is None:
+            self._builder = SidBuilder(
+                lib.SidConfig_get_sidEmulation(self.obj))
+        return self._builder
 
     @sid_emulation.setter
     def sid_emulation(self, value):
-        builder = ffi.cast('sidbuilder*', value.obj)
-        lib.SidConfig_set_sidEmulation(self.obj, builder)
+        builder_ptr = ffi.cast('sidbuilder*', value.obj)
+        lib.SidConfig_set_sidEmulation(self.obj, builder_ptr)
+        self._builder = value
 
     left_volume = _gen_SidConfig_property('leftVolume')
 
@@ -696,4 +704,4 @@ class SidDatabase:
         return ffi.string(lib.SidDatabase_error(self.obj))
 
     def _raise_error(self):
-        raise SidDatabaseError(self.err)
+        raise SidDatabaseError(self.error)
