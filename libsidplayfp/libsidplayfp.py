@@ -342,14 +342,14 @@ class SidTuneInfo:
 
     @property
     def path(self):
-        s = ffi.string(lib.SidTuneInfo_path(self.obj))
+        s = lib.SidTuneInfo_path(self.obj)
         if s == ffi.NULL:
             return None
         return ffi.string(s)
 
     @property
     def data_filename(self):
-        s = ffi.string(lib.SidTuneInfo_dataFileName(self.obj))
+        s = lib.SidTuneInfo_dataFileName(self.obj)
         if s == ffi.NULL:
             return None
         return ffi.string(s)
