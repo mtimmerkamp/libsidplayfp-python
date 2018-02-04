@@ -6,7 +6,7 @@ At first an instance of :py:class:`libsidplayfp.SidPlayfp` is required as it is 
     >>> import libsidplayfp
     >>> player = libsidplayfp.SidPlayfp()
 
-Usually at least a C64 Kernal ROM is required to play tunes (however some tunes can run without any ROMs). Some tunes also require BASIC and character generator ROMs. To supply the emulation with the required ROMs, :py:func:`libsidplayfp.SidPlayfp.set_roms` is used::
+Usually at least a C64 Kernal ROM is required to play tunes (however some tunes can run without any ROMs like that one we are going to play below). Some tunes also require BASIC and character generator ROMs. To supply the emulation with the required ROMs, :py:func:`libsidplayfp.SidPlayfp.set_roms` is used::
 
     >>> kernal = open('kernal.bin', 'rb').read()
     >>> # read other roms ...
@@ -50,10 +50,8 @@ To get some information about the tune :py:func:`libsidplayfp.SidTune.get_info()
     >>> info.sid_chips
     2
     >>> # which models are required?
-    >>> info.sid_model(0)
-    <SidModel.MODEL8580: 2>
-    >>> info.sid_model(1)
-    <SidModel.MODEL8580: 2>
+    >>> info.sid_models
+    [<SidModel.MODEL8580: 2>, <SidModel.MODEL8580: 2>]
 
 After loading the tune and receiving some information about it, we are ready to load it into the player.
 

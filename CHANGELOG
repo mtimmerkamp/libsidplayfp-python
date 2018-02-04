@@ -1,0 +1,6 @@
+Changelog
+
+Changes from version 0.0.5a0 to 0.0.6a0:
+ * Renamed SidTuneInfo.sid_chip_base() to get_sid_chip_base().
+ * Renamed SidTuneInfo.sid_model() to get_sid_model().
+ * Added SidTuneInfo.sid_models and sid_chip_bases to return lists using the renamed methods above.

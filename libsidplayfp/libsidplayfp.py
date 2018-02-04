@@ -300,16 +300,24 @@ class SidTuneInfo:
     start_song = _property('startSong')
     current_song = _property('currentSong')
 
-    def sid_chip_base(self, i):
+    def get_sid_chip_base(self, i):
         return lib.SidTuneInfo_sidChipBase(self.obj, i)
+
+    @property
+    def sid_chip_bases(self):
+        return [self.get_sid_chip_base(i) for i in range(self.sid_chips)]
 
     sid_chips = _property('sidChips')
     song_speed = _property('songSpeed')
     reloc_start_page = _property('relocStartPage')
     reloc_pages = _property('relocPages')
 
-    def sid_model(self, i):
+    def get_sid_model(self, i):
         return SidModel(lib.SidTuneInfo_sidModel(self.obj, i))
+
+    @property
+    def sid_models(self):
+        return [self.get_sid_model(i) for i in range(self.sid_chips)]
 
     compatibility = _property('compatibility', result_wrapper=SidCompatibility)
 

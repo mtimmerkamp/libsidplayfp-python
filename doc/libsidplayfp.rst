@@ -447,7 +447,12 @@ Sidtunes can be loaded from files using :py:class:`SidTune`. Using its method :p
         First available page for relocation.
 
 
-    .. py:method:: SidTuneInfo.sid_chip_base(i)
+    .. py:attribute:: SidTuneInfo.sid_chips
+
+        Get the number of SID chips required by the tune.
+
+
+    .. py:method:: SidTuneInfo.get_sid_chip_base(i)
 
         The SID chip base address(es) used by the sidtune.
 
@@ -455,19 +460,22 @@ Sidtunes can be loaded from files using :py:class:`SidTune`. Using its method :p
         :type i: int
         :rtype: int
 
+    .. py:attribute:: SidTuneInfo.sid_chip_bases
 
-    .. py:attribute:: SidTuneInfo.sid_chips
-
-        Get the number of SID chips required by the tune.
+        Get a list of SID chip base addresses. Uses :py:func:`SidTuneInfo.get_sid_chip_base` to retrieve :py:attr:`SidTuneInfo.sid_chips` base addresses and returns them as a list.
 
 
-    .. py:method:: SidTuneInfo.sid_model(i)
+    .. py:method:: SidTuneInfo.get_sid_model(i)
 
         The SID chip model(s) requested by the sidtune.
 
         :param i: chip number
         :type i: int
         :rtype: :py:class:`SidModel`
+
+    .. py:attribute:: SidTuneInfo.sid_models
+
+        Returns a list of SID chip models of length :py:attr:`SidTuneInfo.sid_chips` (uses :py:func:`SidTuneInfo.get_sid_model` internally).
 
 
     .. py:attribute:: SidTuneInfo.song_speed
