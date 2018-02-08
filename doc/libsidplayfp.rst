@@ -92,10 +92,10 @@ SID Player and Configuration
 
         :param kernal: Kernal ROM
         :type kernal: buffer
-        :param kernal: Basic ROM, generally only needed for BASIC tunes.
-        :type kernal: buffer
-        :param kernal: character generator ROM
-        :type kernal: buffer
+        :param basic: Basic ROM, generally only needed for BASIC tunes.
+        :type basic: buffer
+        :param character: character generator ROM
+        :type character: buffer
 
 
     .. py:method:: SidPlayfp.stop()
