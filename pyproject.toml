@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "libsidplayfp"
-version = "0.0.6a0"
+version = "0.0.7a0"
 dependencies = [
     "cffi >= 1.0.0",
 ]
