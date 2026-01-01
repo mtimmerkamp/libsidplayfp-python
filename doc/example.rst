@@ -42,7 +42,7 @@ To get some information about the tune :py:func:`libsidplayfp.SidTune.get_info()
     >>> info.info_strings
     [b'Phat Frog', b'Steven Diemer (A-Man)', b'2007 Xenon']
 
-    >>> # number of subsongs:
+    >>> # number of subtunes (sub-songs):
     >>> info.songs
     1
 
@@ -53,8 +53,9 @@ To get some information about the tune :py:func:`libsidplayfp.SidTune.get_info()
     >>> info.sid_models
     [<SidModel.MODEL8580: 2>, <SidModel.MODEL8580: 2>]
 
-After loading the tune and receiving some information about it, we are ready to load it into the player.
+After loading the tune and receiving some information about it, we are ready to select the first (and only) subtune and load it into the player. Subtune numbers start with 1 and a number of 0 would select the start tune.
 
+    >>> tune.select_song(1)
     >>> player.load(tune)
 
 If no exception is raised, everything is ready to play that tune. We just require some library to output the sound. Here we will use `PyAudio <https://pypi.python.org/pypi/PyAudio/>`_ but any audio library wil be sufficient if it supports 16 bit signed integer samples passed using a buffer.
