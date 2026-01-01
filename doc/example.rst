@@ -1,12 +1,21 @@
 Usage example
 #############
 
+Prerequisites
+*************
+
+First, make sure libsidplayfp-python is installed properly. If you want to listen to music directly from Python, consider installing an audio library, such as ``pyaudio``. Or consider writing a ``.wav`` file, e.g., with Python's ``wave`` module.
+
+
+Quickstart
+**********
+
 At first an instance of :py:class:`libsidplayfp.SidPlayfp` is required as it is the player interface.::
 
     >>> import libsidplayfp
     >>> player = libsidplayfp.SidPlayfp()
 
-Usually at least a C64 Kernal ROM is required to play tunes (however some tunes can run without any ROMs like that one we are going to play below). Some tunes also require BASIC and character generator ROMs. To supply the emulation with the required ROMs, :py:func:`libsidplayfp.SidPlayfp.set_roms` is used::
+Usually at least a C64 Kernal ROM is required to play tunes (however some tunes can run without any ROMs like that one we are going to play below). Some tunes also require BASIC and character generator ROMs. Below, we will play a tune that does not require any ROM, so you can skip this step if you want. To supply the emulation with the required ROMs, :py:func:`libsidplayfp.SidPlayfp.set_roms` is used::
 
     >>> kernal = open('kernal.bin', 'rb').read()
     >>> # read other roms ...
@@ -58,7 +67,7 @@ After loading the tune and receiving some information about it, we are ready to 
     >>> tune.select_song(1)
     >>> player.load(tune)
 
-If no exception is raised, everything is ready to play that tune. We just require some library to output the sound. Here we will use `PyAudio <https://pypi.python.org/pypi/PyAudio/>`_ but any audio library wil be sufficient if it supports 16 bit signed integer samples passed using a buffer.
+If no exception is raised, everything is ready to play that tune. We just require some library to output the sound. Here we will use `PyAudio <https://pypi.org/project/PyAudio/>`_ but any audio library wil be sufficient if it supports 16 bit signed integer samples passed using a buffer.
 
 Setup PyAudio::
 

@@ -56,7 +56,7 @@ SID Player and Configuration
 
     .. py:attribute:: SidPlayfp.info
 
-        Get the current player informations. (see :py:class:`SidInfo`)
+        Get the current player information. (see :py:class:`SidInfo`)
 
 
     .. py:attribute:: SidPlayfp.is_playing
@@ -153,7 +153,7 @@ SID Player and Configuration
 
     .. py:attribute:: SidConfig.playback
 
-        Playbak mode. (see :py:class:`Playback`)
+        Playback mode. (see :py:class:`Playback`)
 
 
     .. py:attribute:: SidConfig.power_on_delay
@@ -182,8 +182,7 @@ SID Player and Configuration
 
         Reading this property always returns a :py:class:`SidBuilder`, however
         as this is an abstract class the internal object is actually one of
-        :py:class:`ReSIDfpBuilder`, :py:class:`ReSIDBuilder` or
-        :py:class:`HardSIDBuilder`.
+        :py:class:`ReSIDfpBuilder`, :py:class:`ReSIDBuilder`.
 
         Writing to this property supports any of these classes as it is
         casted internally.
@@ -411,7 +410,7 @@ Sidtunes can be loaded from files using :py:class:`SidTune`. Using its method :p
 
     .. py:attribute:: SidTuneInfo.info_strings
 
-        Return tune informations: Song title, author and release information.
+        Return tune information: Song title, author and release information.
 
         :returns: tune information
         :rtype: list
@@ -674,12 +673,12 @@ Exceptions
 SidBuilder Classes
 ==================
 
-To play a SidTune, an emulation of the SID chip is needed. There are three options: :py:class:`ReSIDfpBuilder`, :py:class:`ReSIDBuilder` and :py:class:`HardSIDBuilder` which actually provide an emulation implementation. :py:class:`SidBuilder` is the abstract (only in the C++ implementation) base class of these but does not provide an implementation. You probably should never need to create an instance of this class by yourself.
+To play a SidTune, an emulation of the SID chip is needed. There are three options: :py:class:`ReSIDfpBuilder` and :py:class:`ReSIDBuilder`, which provide the actual emulation implementation. :py:class:`SidBuilder` is the abstract (only in the C++ implementation) base class of these but does not provide an implementation. You probably should never need to create an instance of this class by yourself.
 
 .. py:class:: SidBuilder(obj)
 
-    Wrapper for sid builders. Base class of :py:class:`ReSIDfpBuilder`,
-    :py:class:`ReSIDBuilder` and :py:class:`HardSIDBuilder`.
+    Wrapper for sid builders. Base class of :py:class:`ReSIDfpBuilder` and
+    :py:class:`ReSIDBuilder`.
 
     :param obj: sid builder to wrap
     :type obj: ``sidbuilder*``
@@ -732,7 +731,7 @@ To play a SidTune, an emulation of the SID chip is needed. There are three optio
 
     .. py:attribute:: SidBuilder.status
 
-        current error status: True if no error occured, False otherwise
+        current error status: True if no error occurred, False otherwise
 
 
     .. py:attribute:: SidBuilder.used_devices
@@ -797,13 +796,6 @@ To play a SidTune, an emulation of the SID chip is needed. There are three optio
         control range is approximately -500 to 500.
 
 
-.. py:class:: HardSIDBuilder(name=None, cast=None, cdata=None)
-
-    HardSID Builder Class
-
-    For an explanation on the parameter see :py:class:`ReSIDfpBuilder`.
-
-
 Songlength Database Utility
 ===========================
 
@@ -853,5 +845,5 @@ Songlength Database Utility
 Access to internal C wrapper
 ============================
 
-As libsidplayfp is written in C++, it was necessary to write a wrapper for all methods of all public interface's classes. cffi makes that effort rather simple. All wrapper methods are available from ``libsidplay.lib``, however these are not documented as that api is not guaranteed to be stable. It is only available from source in ``libsidplayfp/libsidplayfp_builder.py``.
+As libsidplayfp is written in C++, it was necessary to write a wrapper for all methods of all public interface's classes. cffi makes that effort rather simple. All wrapper methods are available from ``libsidplay.lib``, however these are not documented as that api is not guaranteed to be stable. It is available from the source at ``libsidplayfp/libsidplayfp_wrapper.cpp`` and the corresponding header file.
 An interface to the ffi is provided by ``libsidplayfp.ffi``. This can be used to cast the internal cdata objects.
