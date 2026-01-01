@@ -26,7 +26,6 @@
 #include "sidplayfp/sidbuilder.h"
 #include "sidplayfp/builders/residfp.h"
 #include "sidplayfp/builders/resid.h"
-#include "sidplayfp/builders/hardsid.h"
 #include "sidplayfp/SidDatabase.h"
 
 extern "C" {
@@ -617,17 +616,6 @@ void ReSIDBuilder_bias(ReSIDBuilder* self, double dac_bias)
     self->bias(dac_bias);
 }
 
-
-/* ********** ReSIDBuilder ********** */
-HardSIDBuilder* HardSIDBuilder_new(const char* name)
-{
-    return new HardSIDBuilder(name);
-}
-
-void HardSIDBuilder_destroy(HardSIDBuilder* self)
-{
-    delete self;
-}
 
 /* ********** SidDatabase ********** */
 SidDatabase* SidDatabase_new()

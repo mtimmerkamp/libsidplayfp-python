@@ -217,11 +217,6 @@ void ReSIDBuilder_destroy(ReSIDBuilder* self);
 void ReSIDBuilder_bias(ReSIDBuilder* self, double dac_bias);
 
 
-// HardSIDBuilder
-HardSIDBuilder* HardSIDBuilder_new(const char* name);
-void HardSIDBuilder_destroy(HardSIDBuilder* self);
-
-
 // SidDatabase
 SidDatabase* SidDatabase_new();
 void SidDatabase_destroy(SidDatabase* self);
