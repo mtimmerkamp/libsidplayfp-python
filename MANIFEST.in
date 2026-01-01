@@ -1,0 +1,2 @@
+include libsidplayfp/*.h
+include libsidplayfp/*.cpp

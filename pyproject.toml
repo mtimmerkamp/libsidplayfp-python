@@ -1,0 +1,58 @@
+[build-system]
+requires = [
+    # first version that supports Python 3.12; older versions may work
+    # with previous Python versions, but are not tested
+    "setuptools >= 66.1",
+    "cffi>=1.0.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "libsidplayfp"
+version = "0.0.6a0"
+dependencies = [
+    "cffi >= 1.0.0",
+]
+requires-python = ">=3.9"
+
+description = "Python interface to libsidplayfp."
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+keywords = ["sidplayfp", "libsidplayfp", "c64", "sidtune"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+
+    "Intended Audience :: Developers",
+    "Topic :: Multimedia :: Sound/Audio :: Players",
+    "Topic :: Software Development :: Libraries",
+
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+authors = [
+    {name = "Maximilian Timmerkamp"},
+]
+
+[project.optional-dependencies]
+doc = ["Sphinx >= 3"]
+
+[tool.setuptools.packages.find]
+include = ["libsidplayfp"]
+
+[project.urls]
+Homepage = "https://github.com/mtimmerkamp/libsidplayfp-python"
+Documentation = "https://libsidplayfp-python.readthedocs.io/en/latest/"
+Repository = "https://github.com/mtimmerkamp/libsidplayfp-python.git"
+Issues = "https://github.com/mtimmerkamp/libsidplayfp-python/issues"
+
+
+[tool.poetry.dev-dependencies]
+Sphinx = ">=3"
+
